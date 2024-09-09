@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bureau Dynamique</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400&display=swap" rel="stylesheet">
+    <style>
+        @font-face {
+            font-family: 'Anurati';
+            src: url('fonts/Anurati.ttf') format('truetype');
+        }
+
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Prevents content from exceeding screen size */
+        }
+
+        body {
+            background-image: url('images/background.jpeg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            font-family: 'Open Sans', sans-serif;
+        }
+
+        #date-time {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            margin-top: 130px;
+        }
+
+        .day {
+            color: plum;
+            font-family: 'Anurati', sans-serif;
+            text-transform: uppercase;
+            font-size: 120px;
+            letter-spacing: 95px;
+            margin-right: -95px;
+        }
+
+        #time-container {
+            display: flex;
+            justify-content: flex-start;
+            align-items: flex-end;
+            width: 100%;
+            padding-left: 20px;
+            margin-bottom: -15px;
+        }
+
+        #time {
+            color: plum;
+            font-family: 'Rubik', sans-serif;
+            font-size: 150px;
+            font-weight: 0;
+        }
+
+    </style>
+</head>
+<body>
+    <div id="date-time">
+        <div class="day" id="day"></div>
+    </div>
+    <div id="time-container">
+        <div id="time"></div>
+    </div>
+
+    <script>
+        function updateDay() {
+            const now = new Date();
+            const day = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(now);
+            document.getElementById('day').innerHTML = day;
+        }
+
+        function updateTime() {
+            const now = new Date();
+            const time = new Intl.DateTimeFormat('fr-FR', { hour: '2-digit', minute: '2-digit' }).format(now);
+            document.getElementById('time').innerHTML = time;
+        }
+
+        function synchronizeMinuteUpdate() {
+            const now = new Date();
+            const seconds = now.getSeconds();
+            const millisecondsUntilNextMinute = (60 - seconds) * 1000;
+
+            setTimeout(() => {
+                updateTime();
+                setInterval(updateTime, 60000);
+            }, millisecondsUntilNextMinute);
+        }
+
+        function displayDateTime() {
+            updateDay();
+            updateTime();
+        }
+
+        // Initial call to display the date and time
+        displayDateTime();
+        synchronizeMinuteUpdate();
+    </script>
+</body>
+</html>
