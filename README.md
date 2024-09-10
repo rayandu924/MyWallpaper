@@ -1,4 +1,5 @@
 # MyWallpaper
 
 It's simply my wallpaper
-![Capture d'écran 2024-09-09 031946](https://github.com/user-attachments/assets/ca9c9c8a-1918-46d0-a145-97d7986536b5)
+![image](https://github.com/user-attachments/assets/146a0118-0d5f-4c60-88c9-e7e98a78dd6e)
+
