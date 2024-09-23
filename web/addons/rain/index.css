@@ -1,0 +1,31 @@
+#rain-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.rain-drop {
+    position: absolute;
+    background-color: var(--drop-color, #00FFFF); /* Default color */
+    width: var(--drop-size, 2px);
+    height: var(--drop-length, 15px);
+    transform: rotate(var(--drop-angle, 15deg)); /* Default angle */
+    opacity: 0.6;
+    animation: fall var(--drop-speed, 2s) linear infinite;
+}
+
+@keyframes fall {
+    0% {
+        top: -10%;
+        opacity: 1;
+    }
+    100% {
+        top: 110%;
+        opacity: 0;
+    }
+}

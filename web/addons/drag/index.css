@@ -1,0 +1,7 @@
+#hover-element {
+    transition: background-color 0.3s ease; /* Add smooth transition */
+}
+
+#hover-element:hover {
+    background-color: blue; /* Color when hovered */
+}
