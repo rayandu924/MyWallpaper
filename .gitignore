@@ -1,0 +1,70 @@
+# Fichiers de dépendances
+*.py[cod]
+__pycache__/
+*.so
+
+# Environnements virtuels
+env/
+venv/
+ENV/
+VENV/
+venv.bak/
+
+# Fichiers de configuration
+*.env
+*.ini
+*.cfg
+
+# Fichiers de logs
+*.log
+*.out
+*.err
+
+# Bases de données locales
+*.sqlite3
+
+# Caches
+.cache/
+*.egg-info/
+.eggs/
+dist/
+build/
+*.egg
+
+# Notebooks Jupyter
+.ipynb_checkpoints/
+
+# Pytest
+.pytest_cache/
+
+# Outils d'analyse statique
+.mypy_cache/
+coverage_html_report/
+htmlcov/
+.coverage
+.coverage.*
+
+# Caches pip
+pip-wheel-metadata/
+__pypackages__/
+
+# IDÉ spécifiques
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Fichiers temporaires
+*.tmp
+*.temp
+*.swp
+*.bak
+*~
+.DS_Store
+
+# Docker
+docker-compose.override.yml
+
+# Tests
+.tox/
+.nox/
