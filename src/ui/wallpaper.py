@@ -1,9 +1,12 @@
+# Modify your WallpaperApp class in .\src\ui\wallpaper.py
+
 import os
 from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QWidget
 from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage
 from PyQt5.QtWebEngineWidgets import QWebEngineSettings
 from PyQt5.QtCore import QUrl
 from addon.addon_loader import AddonLoader
+from addon.addon_watcher import start_addon_watcher
 from utils.windows_api import set_as_wallpaper
 
 class WallpaperApp(QMainWindow):
@@ -39,11 +42,23 @@ class WallpaperApp(QMainWindow):
         dev_tools_view.setPage(dev_tools_page)
 
         self.devtools_window.setCentralWidget(dev_tools_view)
-        
+
         # Show the DevTools window at start
         self.devtools_window.show()
 
     def on_page_load_finished(self):
         addons_dir = os.path.abspath('web/addons')
         addon_loader = AddonLoader(self.web_view)
+        
+        # Inject the addons initially
         addon_loader.inject_addons(addons_dir)
+
+        # Start the AddonWatcher to monitor changes
+        self.addon_watcher_observer = start_addon_watcher(addon_loader, addons_dir)
+
+    def closeEvent(self, event):
+        # Stop the addon watcher when the app is closed
+        if hasattr(self, 'addon_watcher_observer'):
+            self.addon_watcher_observer.stop()
+            self.addon_watcher_observer.join()
+        event.accept()

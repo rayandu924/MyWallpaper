@@ -1,4 +1,4 @@
-const config = {
+config = {
     dropSizeMin: 2,
     dropSizeMax: 4,
     dropLengthMin: 10,
@@ -6,8 +6,8 @@ const config = {
     dropFrequency: 5,  // in milliseconds
     dropSpeedMin: 2,     // in seconds
     dropSpeedMax: 1.5,     // in seconds
-    dropColor: "#fc03c6",
-    dropAngle: 15 // degrees
+    dropColor: "#6cf541",
+    dropAngle: 15 // degreesd
 };
 
 function initRainEffect() {
