@@ -1,6 +1,7 @@
 import os
-from PyQt5.QtWidgets import QMainWindow
-from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEngineSettings
+from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QWidget
+from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage
+from PyQt5.QtWebEngineWidgets import QWebEngineSettings
 from PyQt5.QtCore import QUrl
 from addon.addon_loader import AddonLoader
 from utils.windows_api import set_as_wallpaper
@@ -23,16 +24,24 @@ class WallpaperApp(QMainWindow):
         # Load addons after page is loaded
         self.web_view.loadFinished.connect(self.on_page_load_finished)
 
+        # Open DevTools if debug mode is enabled
         if debug:
             self.open_devtools()
 
     def open_devtools(self):
-        from PyQt5.QtWebEngineWidgets import QWebEnginePage
+        # Create a separate window for DevTools
+        self.devtools_window = QMainWindow(self)
+        dev_tools_view = QWebEngineView(self.devtools_window)
+
+        # Assign DevTools page to the view
         dev_tools_page = QWebEnginePage(self.web_view)
         self.web_view.page().setDevToolsPage(dev_tools_page)
-        dev_tools_view = QWebEngineView()
         dev_tools_view.setPage(dev_tools_page)
-        dev_tools_view.show()
+
+        self.devtools_window.setCentralWidget(dev_tools_view)
+        
+        # Show the DevTools window at start
+        self.devtools_window.show()
 
     def on_page_load_finished(self):
         addons_dir = os.path.abspath('web/addons')
