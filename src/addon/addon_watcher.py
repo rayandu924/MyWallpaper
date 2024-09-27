@@ -7,7 +7,7 @@ class AddonWatcher(FileSystemEventHandler):
     def __init__(self, addon_loader, addons_dir, extensions=None):
         self.addon_loader = addon_loader
         self.addons_dir = addons_dir
-        self.extensions = extensions if extensions is not None else ['.html', '.js']
+        self.extensions = extensions if extensions is not None else ['.html', '.js', '.css', '.json']
         self.last_modified = time.time()  # Track the last modification time
 
     def on_modified(self, event):

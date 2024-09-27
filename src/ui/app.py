@@ -9,7 +9,7 @@ def main():
     logger = set_logger('MyWallpaperApp')
     app = QApplication(sys.argv)
 
-    local_file = 'web/index.html'
+    local_file = 'web/main/index.html'
     wallpaper_app = WallpaperApp(local_file, debug=True)
     wallpaper_app.show()
 

@@ -1,9 +1,63 @@
 <!DOCTYPE html>
+
 <head>
-    <link rel="stylesheet" href="index.css">
+<link href="index.css" rel="stylesheet"/>
+<script id="config" type="application/json">{
+    "dropSizeMin": {
+        "value": "5",
+        "type": "slider",
+        "min": 1,
+        "max": 10
+    },
+    "dropSizeMax": {
+        "value": 4.53,
+        "type": "slider",
+        "min": 1,
+        "max": 10
+    },
+    "dropLengthMin": {
+        "value": 5,
+        "type": "slider",
+        "min": 5,
+        "max": 30
+    },
+    "dropLengthMax": {
+        "value": 10,
+        "type": "slider",
+        "min": 10,
+        "max": 50
+    },
+    "dropFrequency": {
+        "value": 21.02,
+        "type": "slider",
+        "min": 1,
+        "max": 100
+    },
+    "dropSpeedMin": {
+        "value": 4.9,
+        "type": "slider",
+        "min": 1,
+        "max": 5
+    },
+    "dropSpeedMax": {
+        "value": 3,
+        "type": "slider",
+        "min": 1,
+        "max": 5
+    },
+    "dropColor": {
+        "value": "#04ff00",
+        "type": "color"
+    },
+    "dropAngle": {
+        "value": "139",
+        "type": "slider",
+        "min": 0,
+        "max": 360
+    }
+}</script>
 </head>
 <body>
-    <div id="rain-container"></div>
+<div id="rain-container"></div>
 </body>
 <script src="index.js"></script>
-</html>

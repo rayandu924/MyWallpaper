@@ -1,9 +1,6 @@
-# Modify your WallpaperApp class in .\src\ui\wallpaper.py
-
 import os
 from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QWidget
 from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage
-from PyQt5.QtWebEngineWidgets import QWebEngineSettings
 from PyQt5.QtCore import QUrl
 from addon.addon_loader import AddonLoader
 from addon.addon_watcher import start_addon_watcher
@@ -13,21 +10,22 @@ class WallpaperApp(QMainWindow):
     def __init__(self, web_page_path, debug=False):
         super().__init__()
 
+        # Set up the web view
         self.web_view = QWebEngineView(self)
         self.setCentralWidget(self.web_view)
 
-        # Load the local web page
+        # Load the local web page as wallpaper
         self.web_view.load(QUrl.fromLocalFile(os.path.abspath(web_page_path)))
         self.setWindowFlags(self.windowFlags() | 0x40000)  # FramelessWindowHint
         self.showFullScreen()
 
-        # Set wallpaper
+        # Set the window as a wallpaper while retaining mouse interactions
         set_as_wallpaper(int(self.winId()))
 
-        # Load addons after page is loaded
+        # Load addons after the main page is loaded
         self.web_view.loadFinished.connect(self.on_page_load_finished)
 
-        # Open DevTools if debug mode is enabled
+        # Open DevTools if in debug mode
         if debug:
             self.open_devtools()
 
@@ -42,14 +40,13 @@ class WallpaperApp(QMainWindow):
         dev_tools_view.setPage(dev_tools_page)
 
         self.devtools_window.setCentralWidget(dev_tools_view)
-
-        # Show the DevTools window at start
         self.devtools_window.show()
 
     def on_page_load_finished(self):
+        # Directory containing the addons
         addons_dir = os.path.abspath('web/addons')
         addon_loader = AddonLoader(self.web_view)
-        
+
         # Inject the addons initially
         addon_loader.inject_addons(addons_dir)
 

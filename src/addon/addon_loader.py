@@ -37,9 +37,6 @@ class AddonLoader:
         var newIframe = document.createElement('iframe');
         newIframe.setAttribute('addon', '{addon_name}');
         newIframe.src = '{QUrl.fromLocalFile(addon_path).toString()}';
-        newIframe.style.width = '100%';
-        newIframe.style.height = '100%';
-        newIframe.style.border = 'none';
         document.body.appendChild(newIframe);
         """
 
