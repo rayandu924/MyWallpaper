@@ -1,4 +1,4 @@
-config = {
+const config = {
     dropSizeMin: 2,
     dropSizeMax: 4,
     dropLengthMin: 10,
@@ -6,7 +6,7 @@ config = {
     dropFrequency: 5,  // in milliseconds
     dropSpeedMin: 2,     // in seconds
     dropSpeedMax: 1.5,     // in seconds
-    dropColor: "#6cf541",
+    dropColor: "#fcba03",
     dropAngle: 15 // degreesd
 };
 

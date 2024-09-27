@@ -1,9 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="stylesheet" href="index.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mouse Position Logger</title>
 </head>
 <body>
+    <h1>Move your mouse around!</h1>
+
     <script>
         document.addEventListener('mousemove', (event) => {
             console.log(`Mouse Position: X = ${event.clientX}, Y = ${event.clientY}`);

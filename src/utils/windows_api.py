@@ -5,21 +5,18 @@ user32 = ctypes.windll.user32
 gdi32 = ctypes.windll.gdi32
 
 # Constants for window styles
-WS_EX_LAYERED = 0x00080000
-WS_EX_TRANSPARENT = 0x00000020
-LWA_ALPHA = 0x00000002
 GWL_EXSTYLE = -20
 
-# Modify the window to make it click-through but still interactive
-def set_click_through(window_id):
+# Remove WS_EX_TRANSPARENT to allow mouse interactions
+def set_wallpaper_interaction(window_id):
     # Get the current extended window style
     style = user32.GetWindowLongW(window_id, GWL_EXSTYLE)
-    
-    # Add the layered and transparent styles
-    user32.SetWindowLongW(window_id, GWL_EXSTYLE, style | WS_EX_LAYERED | WS_EX_TRANSPARENT)
-    
-    # Optionally, you can set window transparency if needed
-    user32.SetLayeredWindowAttributes(window_id, 0, 255, LWA_ALPHA)
+
+    # Only apply WS_EX_LAYERED (without WS_EX_TRANSPARENT)
+    user32.SetWindowLongW(window_id, GWL_EXSTYLE, style | 0x00080000)  # WS_EX_LAYERED
+
+    # Optionally, set window transparency if needed
+    user32.SetLayeredWindowAttributes(window_id, 0, 255, 0x00000002)  # 255 = full opacity
 
 def set_as_wallpaper(window_id):
     progman = user32.FindWindowW("Progman", None)
@@ -41,6 +38,6 @@ def set_as_wallpaper(window_id):
 
     # Set the window as a child of Progman
     user32.SetParent(window_id, progman)
-    
-    # Make the window click-through
-    set_click_through(window_id)
+
+    # Ensure mouse interactions
+    set_wallpaper_interaction(window_id)
