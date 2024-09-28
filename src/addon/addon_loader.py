@@ -1,44 +1,31 @@
 import os
 from PyQt5.QtCore import QUrl
-from bs4 import BeautifulSoup
 
 class AddonLoader:
-    def __init__(self, web_view):
+    def __init__(self, web_view, addons_dir):
         self.web_view = web_view
+        self.addons_dir = addons_dir
 
-    def inject_addons(self, addons_dir):
-        """Inject all addons from the addons directory into the web view."""
-        if not os.path.exists(addons_dir):
-            print(f"Addons directory does not exist: {addons_dir}")
+    def inject_addons(self):
+        """Inject all valid addons into the web view."""
+        if not os.path.exists(self.addons_dir):
+            print(f"Addons directory does not exist: {self.addons_dir}")
             return
 
-        addons = self.get_addon_files(addons_dir)
-        for addon_name, addon_path in addons:
-            self.inject_html_content(addon_name, addon_path)
-
-    def get_addon_files(self, addons_dir):
-        """Return a list of (addon_name, addon_path) from the addons directory."""
-        addons = []
-        for addon_name in os.listdir(addons_dir):
-            addon_path = os.path.join(addons_dir, addon_name, "index.html")
+        for addon_name in os.listdir(self.addons_dir):
+            addon_path = os.path.join(self.addons_dir, addon_name, "index.html")
             if os.path.exists(addon_path):
-                addons.append((addon_name, addon_path))
-        return addons
+                self.inject_html_content(addon_name, addon_path)
 
     def inject_html_content(self, addon_name, addon_path):
-        """Inject an iframe for each addon into the web view."""
-        # Créer une iframe pour charger l'addon
-        iframe_script = f"""
-        var existingIframe = document.querySelector('iframe[addon="{addon_name}"]');
-        if (existingIframe) {{
-            existingIframe.remove();
-        }}
-        
-        var newIframe = document.createElement('iframe');
-        newIframe.setAttribute('addon', '{addon_name}');
-        newIframe.src = '{QUrl.fromLocalFile(addon_path).toString()}';
-        document.body.appendChild(newIframe);
-        """
+        """Inject an iframe for the addon."""
+        script = f"""
+        var iframe = document.querySelector('iframe[addon="{addon_name}"]');
+        if (iframe) iframe.remove();
 
-        # Injecter et exécuter le script dans le WebView
-        self.web_view.page().runJavaScript(iframe_script)
+        iframe = document.createElement('iframe');
+        iframe.setAttribute('addon', '{addon_name}');
+        iframe.src = '{QUrl.fromLocalFile(addon_path).toString()}';
+        document.body.appendChild(iframe);
+        """
+        self.web_view.page().runJavaScript(script)

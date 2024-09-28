@@ -1,16 +1,17 @@
 import sys, os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
+from pathlib import Path
 from PyQt5.QtWidgets import QApplication
 from ui.wallpaper import WallpaperApp
-from utils.logger import set_logger
 
 def main():
-    logger = set_logger('MyWallpaperApp')
+    """Main function to start the wallpaper application."""
     app = QApplication(sys.argv)
 
-    local_file = 'web/main/index.html'
-    wallpaper_app = WallpaperApp(local_file, debug=True)
+    web_path = Path('web/').resolve()
+    
+    wallpaper_app = WallpaperApp(str(web_path), debug=True)
     wallpaper_app.show()
 
     sys.exit(app.exec_())
