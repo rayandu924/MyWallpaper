@@ -6,15 +6,20 @@ class AddonManagerAPI:
         self.addon_manager = AddonManager(addons_dir)
 
     def get_addons(self):
-        """Renvoie la liste des addons disponibles."""
+        """Returns the list of available addons."""
         return self.addon_manager.get_addons_list()
 
     def load_config(self, addon_name):
-        """Charge la configuration JSON d'un addon spécifique."""
+        """Loads the configuration JSON of a specific addon."""
         config = self.addon_manager.get_config(addon_name)
         return config
 
     def save_config(self, addon_name, config):
-        """Sauvegarde la configuration mise à jour d'un addon."""
+        """Saves the updated configuration of an addon."""
         self.addon_manager.save_config(addon_name, config)
+        return {"status": "success"}
+
+    def save_addon_order(self, order):
+        """Saves the new order of addons."""
+        self.addon_manager.save_order(order)
         return {"status": "success"}

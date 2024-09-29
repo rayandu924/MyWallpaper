@@ -22,10 +22,14 @@
         </div>
     </div>
 </body>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
 <script>
+    let currentAddon = null;
+    let addonOrder = [];
+
     // Fonction pour charger les configurations des addons
     function loadConfig(addon) {
+        currentAddon = addon;
         window.pywebview.api.load_config(addon).then(config => {
             const editor = document.getElementById('config-editor');
             editor.innerHTML = ''; // Nettoyage de l'éditeur avant de recharger
@@ -34,7 +38,6 @@
                 const div = document.createElement('div');
                 div.classList.add('config-item');
 
-                // Déterminer l'input en fonction de inputType
                 if (config[key].inputType === 'slider') {
                     const label = document.createElement('label');
                     label.textContent = `${key} (${config[key].varType})`;
@@ -43,9 +46,13 @@
                     input.min = config[key].min;
                     input.max = config[key].max;
                     input.value = config[key].value;
-                    input.step = config[key].varType === 'float' ? "0.01" : "1";  // Ajuste le pas en fonction du type
+                    input.step = config[key].varType === 'float' ? "0.01" : "1"; 
 
-                    input.oninput = () => config[key].value = parseFloat(input.value); // Pour les floats/int
+                    input.oninput = () => {
+                        config[key].value = parseFloat(input.value);
+                        saveConfig(config);
+                    };
+
                     div.appendChild(label);
                     div.appendChild(input);
                 } else if (config[key].inputType === 'color') {
@@ -55,42 +62,57 @@
                     input.type = 'color';
                     input.value = config[key].value;
 
-                    input.oninput = () => config[key].value = input.value; // Pour les couleurs (string)
+                    input.oninput = () => {
+                        config[key].value = input.value;
+                        saveConfig(config);
+                    };
+
                     div.appendChild(label);
                     div.appendChild(input);
                 }
 
                 editor.appendChild(div);
             }
+        });
+    }
 
-            // Bouton de sauvegarde
-            const saveButton = document.createElement('button');
-            saveButton.textContent = 'Save Config';
-            saveButton.onclick = () => window.pywebview.api.save_config(addon, config);
-            editor.appendChild(saveButton);
+    function saveConfig(config) {
+        window.pywebview.api.save_config(currentAddon, config);
+    }
+
+    function enableDragAndDrop() {
+        const list = document.getElementById('addons');
+        new Sortable(list, {
+            animation: 150,
+            onEnd: () => {
+                const order = Array.from(list.children).map(li => li.textContent);
+                addonOrder = order;
+                window.pywebview.api.save_addon_order(order);
+            }
         });
     }
 
     // Fonction pour vérifier si PyWebView est prêt
     function checkPyWebViewReady() {
         if (window.pywebview && window.pywebview.api) {
-            console.log('PyWebView is ready');
             window.pywebview.api.get_addons().then(addons => {
                 const ul = document.getElementById('addons');
+                ul.innerHTML = ''; // Réinitialiser la liste d'addons
+
                 addons.forEach(addon => {
                     const li = document.createElement('li');
                     li.textContent = addon;
                     li.onclick = () => loadConfig(addon);
                     ul.appendChild(li);
                 });
+
+                enableDragAndDrop();
             });
         } else {
-            console.log('PyWebView is not ready, retrying...');
-            setTimeout(checkPyWebViewReady, 100);  // Re-vérifie toutes les 100 ms
+            setTimeout(checkPyWebViewReady, 100);
         }
     }
 
-    // Lancer la vérification lorsque le DOM est chargé
     document.addEventListener('DOMContentLoaded', function() {
         checkPyWebViewReady();
     });
