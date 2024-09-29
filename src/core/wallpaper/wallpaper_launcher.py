@@ -1,30 +1,29 @@
-import sys
+import sys, os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 from pathlib import Path
-from PyQt5.QtWidgets import QMainWindow
+from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage
 from PyQt5.QtCore import QUrl
-from addon.addon_loader import AddonLoader
-from addon.addon_watcher import start_addon_watcher
-from utils.windows_api import set_as_wallpaper
+from addons.addon_loader import AddonLoader
+from addons.addon_watcher import start_addon_watcher
+from wallpaper.utils.windows_api import set_as_wallpaper
 
-class WallpaperApp(QMainWindow):
-    def __init__(self, web_path, debug=False):
+
+class WallpaperLauncher(QMainWindow):
+    def __init__(self, debug=False):
         super().__init__()
-        self.web_path = Path(web_path).resolve()
-
-        # Définir le chemin de la page principale (main/index.html)
-        main_page_path = self.web_path / 'main' / 'index.html'
+        self.wallpaper = Path('src/ui/wallpaper/index.html').resolve()
 
         # Set up the web view
         self.web_view = QWebEngineView(self)
         self.setCentralWidget(self.web_view)
 
         # Charger la page web locale en tant que fond d'écran
-        self.web_view.load(QUrl.fromLocalFile(main_page_path.as_posix()))
+        self.web_view.load(QUrl.fromLocalFile(self.wallpaper.as_posix()))
         self.setWindowFlags(self.windowFlags() | 0x40000)  # FramelessWindowHint
         self.showFullScreen()
 
-        # Définir la fenêtre comme fond d'écran tout en conservant les interactions souris
+        # Importer et définir la fenêtre comme fond d'écran ici pour éviter l'import circulaire
         set_as_wallpaper(int(self.winId()))
 
         # Charger les addons après le chargement de la page principale
@@ -48,8 +47,9 @@ class WallpaperApp(QMainWindow):
 
     def on_page_load_finished(self):
         """Appelée lorsque la page principale est entièrement chargée pour injecter les addons."""
-        # Calculer le répertoire des addons relatif à web_path
-        addons_dir = self.web_path / 'addons'
+        # Calculer le répertoire des addons relatif à wallpaper
+        addons_dir = Path('addons/').resolve()
+
         addon_loader = AddonLoader(self.web_view, addons_dir)
 
         # Injecter les addons initialement
@@ -64,3 +64,12 @@ class WallpaperApp(QMainWindow):
             self.addon_watcher_observer.stop()
             self.addon_watcher_observer.join()
         event.accept()
+
+def main():
+    app = QApplication(sys.argv)
+    wallpaper_app = WallpaperLauncher(debug=True)
+    wallpaper_app.show()
+    sys.exit(app.exec_())
+
+if __name__ == '__main__':
+    main()

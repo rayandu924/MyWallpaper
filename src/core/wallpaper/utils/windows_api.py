@@ -22,7 +22,7 @@ def set_wallpaper_interaction(window_id):
 def set_as_wallpaper(window_id):
     progman = user32.FindWindowW("Progman", None)
     result = ctypes.c_void_p()
-    
+
     # Send message to Progman to prepare it for new wallpaper window
     user32.SendMessageTimeoutW(progman, 0x052C, 0, 0, 0x0, 1000, ctypes.byref(result))
 

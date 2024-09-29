@@ -1,15 +1,17 @@
 import os
 from PyQt5.QtCore import QUrl
+import logging
 
 class AddonLoader:
-    def __init__(self, web_view, addons_dir):
-        self.web_view = web_view
+    """Loads and injects addon content into the web view."""
+    def __init__(self, wallpaper, addons_dir):
+        self.wallpaper = wallpaper
         self.addons_dir = addons_dir
 
     def inject_addons(self):
         """Inject all valid addons into the web view."""
         if not os.path.exists(self.addons_dir):
-            print(f"Addons directory does not exist: {self.addons_dir}")
+            logging.error(f"Addons directory does not exist: {self.addons_dir}")
             return
 
         for addon_name in os.listdir(self.addons_dir):
@@ -28,4 +30,4 @@ class AddonLoader:
         iframe.src = '{QUrl.fromLocalFile(addon_path).toString()}';
         document.body.appendChild(iframe);
         """
-        self.web_view.page().runJavaScript(script)
+        self.wallpaper.page().runJavaScript(script)
