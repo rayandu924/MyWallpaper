@@ -5,7 +5,6 @@ from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage
 from PyQt5.QtCore import QUrl
 from addons.addon_loader import AddonLoader
-from addons.addon_watcher import start_addon_watcher
 from wallpaper.utils.windows_api import set_as_wallpaper
 
 
@@ -54,9 +53,6 @@ class WallpaperLauncher(QMainWindow):
 
         # Injecter les addons initialement
         addon_loader.inject_addons()
-
-        # Démarrer le AddonWatcher pour surveiller les changements dans le répertoire des addons
-        self.addon_watcher_observer = start_addon_watcher(addon_loader)
 
     def closeEvent(self, event):
         """Arrêter l'observateur des addons lorsque l'application est fermée."""

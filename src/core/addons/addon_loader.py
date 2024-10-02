@@ -5,33 +5,32 @@ from PyQt5.QtCore import QUrl
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
-class ConfigEventHandler(FileSystemEventHandler):
-    """Handles changes to config.json."""
-    def __init__(self, addon_loader):
-        self.addon_loader = addon_loader
-
-    def on_modified(self, event):
-        if event.src_path.endswith("config.json"):
-            logging.info("Detected change in config.json, reloading addons...")
-            self.addon_loader.load_and_inject_addons()
-
-class AddonLoader:
-    """Loads and injects addon content into the web view."""
+class AddonLoader(FileSystemEventHandler):
+    """Loads and injects addon content into the web view, with monitoring for changes."""
+    
     def __init__(self, wallpaper, addons_dir):
         self.wallpaper = wallpaper
         self.addons_dir = addons_dir
         self.config_file = os.path.join(addons_dir, 'config.json')
         self.addon_order = self.load_addon_order()
+        self.observer = Observer()
+        self.start_watching()
 
-        # Start watching for changes in config.json
-        self.start_watching_config()
+    def start_watching(self):
+        """Start watching the addon directory for changes."""
+        self.observer.schedule(self, self.addons_dir, recursive=True)
+        self.observer.start()
 
-    def start_watching_config(self):
-        """Start watching config.json for changes."""
-        event_handler = ConfigEventHandler(self)
-        observer = Observer()
-        observer.schedule(event_handler, self.addons_dir, recursive=False)
-        observer.start()
+    def on_any_event(self, event):
+        """Handles any modification event in the addon directory."""
+        # Extract addon name from the modified file path
+        if event.is_directory:
+            addon_name = os.path.basename(event.src_path)
+        else:
+            addon_name = os.path.basename(os.path.dirname(event.src_path))
+
+        logging.info(f"Detected change in addon folder: {addon_name}, reinjecting...")
+        self.reinject_addon(addon_name)
 
     def load_addon_order(self):
         """Loads the order of addons from config.json."""
@@ -66,31 +65,64 @@ class AddonLoader:
         ordered_addons = [addon for addon in self.addon_order if addon in all_addons]
         unordered_addons = [addon for addon in all_addons if addon not in ordered_addons]
 
-        # Remove all current iframes
-        self.remove_all_iframes()
-
         # Inject addons in the specified order
         for addon_name in ordered_addons + unordered_addons:
             addon_path = os.path.join(self.addons_dir, addon_name, "index.html")
             if os.path.exists(addon_path):
                 self.inject_html_content(addon_name, addon_path)
 
-    def remove_all_iframes(self):
-        """Remove all iframes from the web view."""
-        script = """
-        var iframes = document.querySelectorAll('iframe');
-        iframes.forEach(function(iframe) {
-            iframe.remove();
-        });
-        """
-        self.wallpaper.page().runJavaScript(script)
+    def reinject_addon(self, addon_name):
+        """Reinject the iframe for a specific addon while keeping its position."""
+        addon_path = os.path.join(self.addons_dir, addon_name, "index.html")
+        if os.path.exists(addon_path):
+            # Find the iframe and its position in the DOM
+            script_find_position = f"""
+            (function() {{
+                var iframe = document.querySelector('iframe[addon="{addon_name}"]');
+                if (iframe) {{
+                    var position = Array.from(document.body.children).indexOf(iframe);
+                    iframe.remove();
+                    return position;
+                }} else {{
+                    return -1;
+                }}
+            }})();
+            """
+            
+            # Execute the JavaScript and capture the position
+            def handle_position(pos):
+                if pos is None or pos == -1:
+                    pos = 'null'
+                self.inject_html_content(addon_name, addon_path, pos)
+            
+            self.wallpaper.page().runJavaScript(script_find_position, handle_position)
 
-    def inject_html_content(self, addon_name, addon_path):
-        """Inject an iframe for the addon."""
+    def inject_html_content(self, addon_name, addon_path, position=None):
+        """Inject an iframe for the addon at a specific position."""
+        position = 'null' if position is None else position  # Ensure position is null in JS when not set
+        
         script = f"""
+        // Remove any existing iframe with the same addon attribute
+        var existingIframe = document.querySelector('iframe[addon="{addon_name}"]');
+        if (existingIframe) {{
+            existingIframe.remove();
+        }}
+
+        // Create and inject the new iframe
         var iframe = document.createElement('iframe');
         iframe.setAttribute('addon', '{addon_name}');
         iframe.src = '{QUrl.fromLocalFile(addon_path).toString()}';
-        document.body.appendChild(iframe);
+
+        if ({position} !== null) {{
+            var referenceNode = document.body.children[{position}];
+            document.body.insertBefore(iframe, referenceNode);
+        }} else {{
+            document.body.appendChild(iframe);
+        }}
         """
         self.wallpaper.page().runJavaScript(script)
+
+    def stop_watching(self):
+        """Stop the observer when shutting down."""
+        self.observer.stop()
+        self.observer.join()
