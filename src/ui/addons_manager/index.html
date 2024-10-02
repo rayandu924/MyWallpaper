@@ -11,13 +11,13 @@
         <div id="addon-list">
             <h3>List of Addons</h3>
             <ul id="addons">
-                <!-- Les addons seront listés ici -->
+                <!-- The addons will be listed here -->
             </ul>
         </div>
         <div id="addon-config">
             <h3>Addon Configuration</h3>
             <div id="config-editor">
-                <!-- La configuration sera affichée ici -->
+                <!-- Configuration will be displayed here -->
             </div>
         </div>
     </div>
@@ -25,49 +25,29 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
 <script>
     let currentAddon = null;
+    let currentConfig = {};  // Store the full configuration here
     let addonOrder = [];
 
-    // Fonction pour charger les configurations des addons
     function loadConfig(addon) {
         currentAddon = addon;
         window.pywebview.api.load_config(addon).then(config => {
+            currentConfig = config;  // Store the full config
             const editor = document.getElementById('config-editor');
-            editor.innerHTML = ''; // Nettoyage de l'éditeur avant de recharger
+            editor.innerHTML = ''; // Clear previous configuration
 
             for (let key in config) {
+                const configItem = config[key];
                 const div = document.createElement('div');
                 div.classList.add('config-item');
 
-                if (config[key].inputType === 'slider') {
-                    const label = document.createElement('label');
-                    label.textContent = `${key} (${config[key].varType})`;
-                    const input = document.createElement('input');
-                    input.type = 'range';
-                    input.min = config[key].min;
-                    input.max = config[key].max;
-                    input.value = config[key].value;
-                    input.step = config[key].varType === 'float' ? "0.01" : "1"; 
+                const label = document.createElement('label');
+                label.textContent = `${key} (${configItem.varType})`;
+                div.appendChild(label);
 
-                    input.oninput = () => {
-                        config[key].value = parseFloat(input.value);
-                        saveConfig(config);
-                    };
+                const input = createInput(configItem);
 
-                    div.appendChild(label);
-                    div.appendChild(input);
-                } else if (config[key].inputType === 'color') {
-                    const label = document.createElement('label');
-                    label.textContent = `${key} (${config[key].varType})`;
-                    const input = document.createElement('input');
-                    input.type = 'color';
-                    input.value = config[key].value;
-
-                    input.oninput = () => {
-                        config[key].value = input.value;
-                        saveConfig(config);
-                    };
-
-                    div.appendChild(label);
+                if (input) {
+                    input.oninput = () => handleInputChange(input, key);
                     div.appendChild(input);
                 }
 
@@ -76,8 +56,61 @@
         });
     }
 
-    function saveConfig(config) {
-        window.pywebview.api.save_config(currentAddon, config);
+    function createInput(configItem) {
+        let input;
+        switch (configItem.inputType) {
+            case 'slider':
+                input = document.createElement('input');
+                input.type = 'range';
+                input.min = configItem.min || 0;
+                input.max = configItem.max || 100;
+                input.value = configItem.value;
+                input.step = configItem.varType === 'float' ? "0.01" : "1";
+                break;
+            case 'color':
+                input = document.createElement('input');
+                input.type = 'color';
+                input.value = configItem.value || '#000000';
+                break;
+            case 'checkbox':
+                input = document.createElement('input');
+                input.type = 'checkbox';
+                input.checked = !!configItem.value;
+                break;
+            case 'number':
+                input = document.createElement('input');
+                input.type = 'number';
+                input.value = configItem.value;
+                input.min = configItem.min || null;
+                input.max = configItem.max || null;
+                break;
+            case 'text':
+                input = document.createElement('input');
+                input.type = 'text';
+                input.value = configItem.value || '';
+                break;
+            case 'textarea':
+                input = document.createElement('textarea');
+                input.value = configItem.value || '';
+                break;
+            default:
+                console.warn(`Unknown inputType: ${configItem.inputType}`);
+                break;
+        }
+        return input;
+    }
+
+    function handleInputChange(input, key) {
+        if (input.type === 'checkbox') {
+            currentConfig[key].value = input.checked;
+        } else {
+            currentConfig[key].value = input.type === 'number' ? parseFloat(input.value) : input.value;
+        }
+        saveConfig();
+    }
+
+    function saveConfig() {
+        window.pywebview.api.save_config(currentAddon, currentConfig);
     }
 
     function enableDragAndDrop() {
@@ -92,12 +125,11 @@
         });
     }
 
-    // Fonction pour vérifier si PyWebView est prêt
     function checkPyWebViewReady() {
         if (window.pywebview && window.pywebview.api) {
             window.pywebview.api.get_addons().then(addons => {
                 const ul = document.getElementById('addons');
-                ul.innerHTML = ''; // Réinitialiser la liste d'addons
+                ul.innerHTML = ''; // Reset addons list
 
                 addons.forEach(addon => {
                     const li = document.createElement('li');
