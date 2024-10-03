@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyWallpaper Addon - Jour de la Semaine</title>
+
+    <!-- Configuration JSON -->
+    <script id="config" type="application/json">{
+    "positionX": {
+        "value": 52,
+        "varType": "number",
+        "inputType": "slider",
+        "min": 0,
+        "max": 100
+    },
+    "positionY": {
+        "value": 20,
+        "varType": "number",
+        "inputType": "slider",
+        "min": 0,
+        "max": 100
+    },
+    "fontURL": {
+        "value": "https://fonts.cdnfonts.com/css/anurati",
+        "varType": "string",
+        "inputType": "text"
+    },
+    "fontFamily": {
+        "value": "'Anurati', sans-serif",
+        "varType": "string",
+        "inputType": "text"
+    },
+    "fontWeight": {
+        "value": 500,
+        "varType": "number",
+        "inputType": "slider",
+        "min": 100,
+        "max": 900,
+        "step": 100
+    },
+    "fontSize": {
+        "value": 127,
+        "varType": "number",
+        "inputType": "slider",
+        "min": 10,
+        "max": 200,
+        "step": 1
+    },
+    "letterSpacing": {
+        "value": 50,
+        "varType": "number",
+        "inputType": "slider",
+        "min": 0,
+        "max": 50,
+        "step": 1
+    },
+    "textColor": {
+        "value": "#d5a0dd",
+        "varType": "string",
+        "inputType": "color"
+    }
+}</script>
+
+    <!-- Static Styles -->
+    <style>
+        body {
+            overflow: hidden;
+            margin: 0;
+        }
+
+        #day {
+            position: absolute;
+            transform: translate(-50%, -50%);
+        }
+    </style>
+</head>
+<body>
+
+<div id="day"></div>
+
+<script>
+    // Récupération de la configuration
+    const config = JSON.parse(document.getElementById('config').textContent);
+
+    // Fonction pour charger la police via l'URL fournie
+    function loadFont(url, fontFamily) {
+        const link = document.createElement('link');
+        link.href = url;
+        link.rel = 'stylesheet';
+        document.head.appendChild(link);
+
+        // Appliquer la famille de polices à l'élément du jour après le chargement du lien
+        link.onload = () => {
+            document.getElementById('day').style.fontFamily = fontFamily;
+        };
+    }
+
+    // Fonction pour mettre à jour l'affichage du jour
+    function updateDay() {
+        const dayElement = document.getElementById('day');
+        const days = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"];
+        const now = new Date();
+        const dayName = days[now.getDay()];
+        dayElement.textContent = dayName;
+    }
+
+    // Fonction pour appliquer la configuration
+    function applyConfig() {
+        const dayElement = document.getElementById('day');
+
+        // Charger la police depuis l'URL et l'appliquer au texte
+        loadFont(config.fontURL.value, config.fontFamily.value);
+
+        // Appliquer les autres styles
+        dayElement.style.color = config.textColor.value;
+        dayElement.style.fontSize = `${config.fontSize.value}px`;
+        dayElement.style.fontWeight = config.fontWeight.value;
+        dayElement.style.left = `${config.positionX.value}%`;
+        dayElement.style.top = `${config.positionY.value}%`;
+        dayElement.style.letterSpacing = `${config.letterSpacing.value}px`;
+    }
+
+    // Initialisation de l'affichage du jour
+    applyConfig();
+    updateDay();
+
+</script>
+</body>
+</html>

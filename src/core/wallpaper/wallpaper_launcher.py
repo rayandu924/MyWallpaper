@@ -51,9 +51,6 @@ class WallpaperLauncher(QMainWindow):
 
         addon_loader = AddonLoader(self.web_view, addons_dir)
 
-        # Injecter les addons initialement
-        addon_loader.inject_addons()
-
     def closeEvent(self, event):
         """Arrêter l'observateur des addons lorsque l'application est fermée."""
         if hasattr(self, 'addon_watcher_observer'):
