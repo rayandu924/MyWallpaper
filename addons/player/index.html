@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Player Widget</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #121212;
+        }
+
+        .music-player {
+            display: flex;
+            align-items: center;
+            background-color: #3f3f73;
+            padding: 20px;
+            border-radius: 25px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .album-art img {
+            width: 150px;
+            height: 150px;
+            border-radius: 20px;
+            object-fit: cover;
+        }
+
+        .song-info {
+            margin-left: 20px;
+            color: white;
+            flex-grow: 1;
+        }
+
+        .song-info h3 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .song-info p {
+            font-size: 18px;
+            color: #ccc;
+        }
+
+        .controls {
+            display: flex;
+            gap: 20px;
+        }
+
+        .controls button {
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .controls button svg {
+            width: 40px;
+            height: 40px;
+            fill: none;
+            stroke: white;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="music-player">
+        <div class="album-art">
+            <img src="image.png" alt="Album Art">
+        </div>
+        <div class="song-info">
+            <h3>my future</h3>
+            <p>Billie Eilish</p>
+        </div>
+        <div class="controls">
+            <button id="prev">
+                <!-- SVG Previous Icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            </button>
+            <button id="play-pause">
+                <!-- SVG Play Icon -->
+                <svg id="play-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+            </button>
+            <button id="next">
+                <!-- SVG Next Icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const playPauseButton = document.getElementById('play-pause');
+        const playIcon = document.getElementById('play-icon');
+
+        let isPlaying = false;
+
+        playPauseButton.addEventListener('click', () => {
+            if (isPlaying) {
+                // Change to play icon
+                playIcon.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"></polygon>';
+                // Logic to pause the music
+            } else {
+                // Change to pause icon
+                playIcon.innerHTML = '<rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect>';
+                // Logic to play the music
+            }
+            isPlaying = !isPlaying;
+        });
+    </script>
+</body>
+</html>

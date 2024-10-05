@@ -7,7 +7,6 @@ from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 import threading
 
-
 class AddonLoader(FileSystemEventHandler):
     """Loads and injects addon content into the web view, with monitoring for changes."""
 
@@ -94,13 +93,21 @@ class AddonLoader(FileSystemEventHandler):
     def reinject_addon(self, addon_name):
         """Reinject a specific addon iframe."""
         if not self.injection_lock.acquire(blocking=False):
+            logging.info("Another injection in progress, skipping reinjection.")
             return  # Skip reinjection if another one is still in progress
 
-        addon_path = os.path.join(self.addons_dir, addon_name, "index.html")
-        if os.path.exists(addon_path):
-            self.get_iframe_position(addon_name, lambda pos: self.inject_iframe(addon_name, addon_path, pos))
-        else:
-            self.injection_lock.release()
+        try:
+            addon_path = os.path.join(self.addons_dir, addon_name, "index.html")
+            if os.path.exists(addon_path):
+                self.get_iframe_position(addon_name, lambda pos: self.inject_iframe(addon_name, addon_path, pos))
+            else:
+                logging.warning(f"Addon {addon_name} does not have a valid index.html file.")
+        except Exception as e:
+            logging.error(f"Error during addon reinjection: {e}")
+        finally:
+            # Ensure the lock is released even if an exception occurs
+            if self.injection_lock.locked():
+                self.injection_lock.release()
 
     def inject_iframe(self, addon_name, addon_path, position=None):
         """Inject an iframe for the addon at a specific position."""
@@ -125,9 +132,17 @@ class AddonLoader(FileSystemEventHandler):
         """
 
         def on_javascript_execution(result):
-            with self.injection_lock:  # Release the lock in a context manager
+            try:
+                # Placeholder to handle result if needed in the future
                 pass
+            except Exception as e:
+                logging.error(f"Error during JavaScript execution: {e}")
+            finally:
+                # Ensure lock is released after JavaScript execution completes
+                if self.injection_lock.locked():
+                    self.injection_lock.release()
 
+        # Execute the JavaScript and ensure the lock is released after completion
         self.wallpaper.page().runJavaScript(script, on_javascript_execution)
 
     def get_iframe_position(self, addon_name, callback):
@@ -150,7 +165,36 @@ class AddonLoader(FileSystemEventHandler):
         new_addon_order = self.load_addon_order()
         if new_addon_order != self.addon_order:
             self.addon_order = new_addon_order
-            self.process_addons(self.inject_iframe)
+            self.reorder_existing_iframes()
+
+    def reorder_existing_iframes(self):
+        """Reorder iframes based on the updated addon order without reinjecting them."""
+        all_addons = self.list_addons()
+
+        # Ensure the order specified in config.json is respected
+        ordered_addons = [addon for addon in self.addon_order if addon in all_addons]
+        unordered_addons = [addon for addon in all_addons if addon not in ordered_addons]
+
+        # Create the new ordered list of addons
+        addons_in_order = ordered_addons + unordered_addons
+
+        # Reposition each iframe based on the new order
+        for position, addon_name in enumerate(addons_in_order):
+            script = f"""
+            (function() {{
+                var iframe = document.querySelector('iframe[addon="{addon_name}"]');
+                if (iframe) {{
+                    iframe.remove();
+                    var referenceNode = document.body.children[{position}];
+                    if (referenceNode) {{
+                        document.body.insertBefore(iframe, referenceNode);
+                    }} else {{
+                        document.body.appendChild(iframe);
+                    }}
+                }}
+            }})();
+            """
+            self.wallpaper.page().runJavaScript(script)
 
     def process_addons(self, action):
         """Process and apply an action (like injection or repositioning) to addons."""
