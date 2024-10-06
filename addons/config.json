@@ -3,22 +3,22 @@
         {
             "name": "day",
             "enabled": true,
-            "position": 0
+            "position": 1
         },
         {
             "name": "image",
             "enabled": true,
-            "position": 1
+            "position": 0
         },
         {
             "name": "rain",
             "enabled": true,
-            "position": 3
+            "position": 2
         },
         {
             "name": "time",
             "enabled": true,
-            "position": 4
+            "position": 3
         }
     ]
 }

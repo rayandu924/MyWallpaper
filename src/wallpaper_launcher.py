@@ -68,6 +68,9 @@ class WallpaperLauncher(QMainWindow):
         observer.schedule(handler, items_dir, recursive=True)
         observer.start()
         logging.info("File system observer started.")
+        
+        # Load the initial configuration
+        updater.update_items(config_manager.load_config())
 
     def closeEvent(self, event):
         logging.info("Closing WallpaperLauncher.")
