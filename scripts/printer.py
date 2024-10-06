@@ -13,7 +13,7 @@ def find_files(patterns, root, max_depth):
         for filename in files:
             if any(fnmatch.fnmatch(filename, pattern) for pattern in patterns):
                 file_path = os.path.join(path, filename)
-                print(file_path)
+                print(f"#{file_path}")
                 try:
                     with open(file_path, 'r') as f:
                         print(f.read())

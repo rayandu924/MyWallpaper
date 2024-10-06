@@ -3,9 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="index.css">
     <title>Addon Manager</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            display: flex;
+            width: 100%;
+        }
+
+        #addon-list,
+        #addon-config {
+            flex: 1;
+            padding: 20px;
+            border: 1px solid #ccc;
+        }
+
+        #addon-list {
+            border-right: none;
+        }
+
+        h3 {
+            margin-top: 0;
+        }
+
+        ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        li {
+            padding: 8px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        li:hover {
+            background-color: #f0f0f0;
+        }
+
+        .config-item {
+            margin-bottom: 10px;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 10px 15px;
+        }
+
+        .toggle {
+            margin-left: 20px;
+        }
+    </style>
 </head>
+
 <body>
     <div class="container">
         <div id="addon-list">
@@ -22,18 +80,19 @@
         </div>
     </div>
 </body>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
 <script>
     let currentAddon = null;
-    let currentConfig = {};  // Store the full configuration here
+    let currentConfig = {};
     let addonOrder = [];
 
     function loadConfig(addon) {
-        currentAddon = addon;
-        window.pywebview.api.load_config(addon).then(config => {
-            currentConfig = config;  // Store the full config
+        currentAddon = addon.name;
+        window.pywebview.api.load_config(currentAddon).then(config => {
+            currentConfig = config;
             const editor = document.getElementById('config-editor');
-            editor.innerHTML = ''; // Clear previous configuration
+            editor.innerHTML = '';
 
             for (let key in config) {
                 const configItem = config[key];
@@ -56,94 +115,106 @@
     }
 
     function createInput(configItem, key) {
-        let input;
         switch (configItem.inputType) {
             case 'slider':
-                const slider = document.createElement('input');
-                slider.type = 'range';
-                slider.min = configItem.min || 0;
-                slider.max = configItem.max || 100;
-                slider.value = configItem.value;
-                slider.step = configItem.step || 1;
-                
-                const numberInput = document.createElement('input');
-                numberInput.type = 'number';
-                numberInput.value = slider.value;
-                numberInput.style.width = '60px'; 
-                numberInput.style.marginLeft = '10px';
-
-                slider.oninput = () => {
-                    numberInput.value = slider.value;
-                    currentConfig[key].value = parseFloat(slider.value);
-                    saveConfig();
-                };
-
-                numberInput.oninput = () => {
-                    let value = parseFloat(numberInput.value);
-                    if (isNaN(value)) {
-                        numberInput.value = slider.value;
-                    } else {
-                        value = Math.min(Math.max(value, parseFloat(slider.min)), parseFloat(slider.max));
-                        slider.value = value;
-                        numberInput.value = value;
-                        currentConfig[key].value = value;
-                        saveConfig();
-                    }
-                };
-
-                const wrapper = document.createElement('div');
-                wrapper.appendChild(slider);
-                wrapper.appendChild(numberInput);
-                input = wrapper;
-                break;
-
+                return createSlider(configItem, key);
             case 'color':
-                input = document.createElement('input');
-                input.type = 'color';
-                input.value = configItem.value || '#000000';
-                input.oninput = () => {
-                    currentConfig[key].value = input.value;
-                    saveConfig();
-                };
-                break;
-
+                return createColorPicker(configItem, key);
             case 'checkbox':
-                input = document.createElement('input');
-                input.type = 'checkbox';
-                input.checked = configItem.value;
-                input.onchange = () => {
-                    currentConfig[key].value = input.checked;
-                    saveConfig();
-                };
-                break;
-
+                return createCheckbox(configItem, key);
             case 'number':
-                input = document.createElement('input');
-                input.type = 'number';
-                input.value = configItem.value;
-                input.min = configItem.min || null;
-                input.max = configItem.max || null;
-                input.oninput = () => {
-                    currentConfig[key].value = parseFloat(input.value);
-                    saveConfig();
-                };
-                break;
-
+                return createNumberInput(configItem, key);
             case 'text':
-                input = document.createElement('input');
-                input.type = 'text';
-                input.value = configItem.value || '';
-                input.oninput = () => {
-                    currentConfig[key].value = input.value;
-                    saveConfig();
-                };
-                break;
-
+                return createTextInput(configItem, key);
             default:
                 console.warn(`Unknown inputType: ${configItem.inputType}`);
-                break;
+                return null;
         }
-        return input;
+    }
+
+    function createSlider(configItem, key) {
+        const wrapper = document.createElement('div');
+        const slider = document.createElement('input');
+        slider.type = 'range';
+        slider.min = configItem.min || 0;
+        slider.max = configItem.max || 100;
+        slider.value = configItem.value;
+        slider.step = configItem.step || 1;
+
+        const numberInput = document.createElement('input');
+        numberInput.type = 'number';
+        numberInput.value = slider.value;
+        numberInput.style.width = '60px';
+        numberInput.style.marginLeft = '10px';
+
+        slider.oninput = () => {
+            numberInput.value = slider.value;
+            currentConfig[key].value = parseFloat(slider.value);
+            saveConfig();
+        };
+
+        numberInput.oninput = () => {
+            let value = parseFloat(numberInput.value);
+            if (isNaN(value)) {
+                numberInput.value = slider.value;
+            } else {
+                value = Math.min(Math.max(value, parseFloat(slider.min)), parseFloat(slider.max));
+                slider.value = value;
+                numberInput.value = value;
+                currentConfig[key].value = value;
+                saveConfig();
+            }
+        };
+
+        wrapper.appendChild(slider);
+        wrapper.appendChild(numberInput);
+        return wrapper;
+    }
+
+    function createColorPicker(configItem, key) {
+        const colorInput = document.createElement('input');
+        colorInput.type = 'color';
+        colorInput.value = configItem.value || '#000000';
+        colorInput.oninput = () => {
+            currentConfig[key].value = colorInput.value;
+            saveConfig();
+        };
+        return colorInput;
+    }
+
+    function createCheckbox(configItem, key) {
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.checked = configItem.value;
+        checkbox.onchange = () => {
+            currentConfig[key].value = checkbox.checked;
+            saveConfig();
+        };
+        return checkbox;
+    }
+
+    function createNumberInput(configItem, key) {
+        const numberInput = document.createElement('input');
+        numberInput.type = 'number';
+        numberInput.value = configItem.value;
+        numberInput.min = configItem.min || null;
+        numberInput.max = configItem.max || null;
+        numberInput.oninput = () => {
+            currentConfig[key].value = parseFloat(numberInput.value);
+            saveConfig();
+        };
+        return numberInput;
+    }
+
+    function createTextInput(configItem, key) {
+        const textInput = document.createElement('input');
+        textInput.type = 'text';
+        textInput.value = configItem.value || '';
+        textInput.oninput = () => {
+            currentConfig[key].value = textInput.value;
+            saveConfig();
+        };
+        return textInput;
     }
 
     function saveConfig() {
@@ -155,8 +226,12 @@
         new Sortable(list, {
             animation: 150,
             onEnd: () => {
-                const order = Array.from(list.children).map(li => li.textContent);
+                const order = Array.from(list.children).map((li, index) => {
+                    const addonName = li.textContent.trim();
+                    return { name: addonName, order: index };
+                });
                 addonOrder = order;
+                // Appel API pour sauvegarder l'ordre dans config.json
                 window.pywebview.api.save_addon_order(order);
             }
         });
@@ -170,8 +245,12 @@
 
                 addons.forEach(addon => {
                     const li = document.createElement('li');
-                    li.textContent = addon;
+                    li.textContent = addon.name;
+
+                    const toggle = createToggleSwitch(addon);
+                    li.appendChild(toggle);
                     li.onclick = () => loadConfig(addon);
+
                     ul.appendChild(li);
                 });
 
@@ -182,8 +261,21 @@
         }
     }
 
-    document.addEventListener('DOMContentLoaded', function() {
+    function createToggleSwitch(addon) {
+        const toggle = document.createElement('input');
+        toggle.type = 'checkbox';
+        toggle.checked = addon.enabled;
+        toggle.classList.add('toggle');
+
+        toggle.onchange = () => {
+            window.pywebview.api.enable_disable_addon(addon.name, toggle.checked);
+        };
+        return toggle;
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
         checkPyWebViewReady();
     });
 </script>
+
 </html>

@@ -1,1 +1,24 @@
-["player", "image", "time", "rain", "day"]
+{
+    "items": [
+        {
+            "name": "day",
+            "enabled": true,
+            "position": 0
+        },
+        {
+            "name": "image",
+            "enabled": true,
+            "position": 1
+        },
+        {
+            "name": "rain",
+            "enabled": true,
+            "position": 3
+        },
+        {
+            "name": "time",
+            "enabled": true,
+            "position": 4
+        }
+    ]
+}
