@@ -33,6 +33,9 @@ class ItemManager:
         element.setAttribute('item', '{item['name']}');
         element.src = '{item['path']}';
 
+        // Set z-index to ensure proper stacking order
+        element.style.zIndex = '{item['position']}';
+
         if (position !== null && position >= 0 && position < document.body.children.length) {{
             console.log('Inserting iframe at position:', position);
             document.body.insertBefore(element, document.body.children[position]);
