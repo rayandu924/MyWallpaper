@@ -1,3 +1,4 @@
+import ctypes
 import os
 import logging
 from pathlib import Path
@@ -5,7 +6,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage, QWebEngineSettings
 from PyQt5.QtCore import QUrl
 from src.json_manager import JsonManager
-import ctypes
+from src.item_manager import ItemManager
 
 class WallpaperManager(QMainWindow):
     user32 = ctypes.windll.user32
@@ -43,7 +44,8 @@ class WallpaperManager(QMainWindow):
         config_file = os.path.join(addons_dir, 'config.json')
         
         config = JsonManager.load_json(config_file)
-        print(config)
+        ItemManager.update_items(self.web_view, config.get("items"))
+        
 
     @staticmethod
     def set_as_wallpaper(window_id):

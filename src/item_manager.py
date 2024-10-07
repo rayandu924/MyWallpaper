@@ -1,21 +1,20 @@
 import logging
-from src.wallpaper_manager import WallpaperManager
 from PyQt5.QtCore import QUrl
 
 class ItemManager:
     @staticmethod
-    def update_items(items):
+    def update_items(view, items):
         logging.info("Updating items")
         for item in items:
-            ItemManager.update_item(item)
+            ItemManager.update_item(view, item)
     
     @staticmethod
-    def update_item(item):
+    def update_item(view, item):
         logging.info(f"Updating item: {item['name']}")
         if item.get("enabled"):
-            ItemManager.inject_item(item)
+            ItemManager.inject_item(view, item)
         else:
-            ItemManager.remove_item(item)
+            ItemManager.remove_item(view, item)
 
     @staticmethod
     def inject_item(view, item):
@@ -23,7 +22,7 @@ class ItemManager:
         script = f"""
         console.log('Attempting to inject item: {item['name']}');
         var existingElement = document.querySelector('[item="{item['name']}"]');
-        var position = {item.get('position') if item.get('position') is not None else 'null'};
+        var position = {item['position']};
 
         if (existingElement) {{
             console.log('Removing existing element for item: {item['name']}');
@@ -32,7 +31,7 @@ class ItemManager:
 
         var element = document.createElement('iframe');
         element.setAttribute('item', '{item['name']}');
-        element.src = '{QUrl.fromLocalFile({item['path']}).toString()}';
+        element.src = '{item['path']}';
 
         if (position !== null && position >= 0 && position < document.body.children.length) {{
             console.log('Inserting iframe at position:', position);
