@@ -47,8 +47,6 @@ function create_item_config(item_name, config) {
 
         // Créer l'input correspondant à la valeur de la clé
         const input = create_input(config[key], async (event) => {
-            console.log(`Sauvegarde de la valeur pour ${key}:`, event.target.value);
-            config[key].value = event.target.value;
             await window.pywebview.api.save_item_config(item_name, config);            
         });
 

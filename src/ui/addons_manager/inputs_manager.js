@@ -2,35 +2,35 @@ import { create_element } from './elements_manager.js';
 
 export function create_input(item_config, onInputCallback) {
     const { elementType = 'input', type } = item_config;
+    
     const element = create_element({
         elementType: elementType,
         attributes: { ...item_config },
         events: {
             input: (event) => {
+                let value = event.target.value;
+
+                // Gestion spécifique selon le type d'input
                 if (elementType === 'input' && (type === 'checkbox' || type === 'radio')) {
-                    item_config.checked = event.target.checked;
                     item_config.value = event.target.checked;
-                } else if (elementType === 'input' && type === 'file') {
-                    item_config.files = event.target.files;
+                } else if (elementType === 'input' && type === 'range') {
+                    item_config.value = parseFloat(value); // Assurer que la valeur soit un nombre (float)
+                } else if (elementType === 'input' && type === 'number') {
+                    item_config.value = parseFloat(value); // Convertir en nombre
+                } else if (!isNaN(value)) {
+                    // Si la valeur est un nombre, on la convertit
+                    item_config.value = parseFloat(value);
                 } else {
-                    item_config.value = event.target.value;
+                    // Sinon, on laisse la valeur sous forme de chaîne
+                    item_config.value = value;
                 }
-                if (onInputCallback) onInputCallback(event);
-            },
-            change: (event) => {
-                if (elementType === 'input' && (type === 'checkbox' || type === 'radio')) {
-                    item_config.checked = event.target.checked;
-                    item_config.value = event.target.checked;
-                } else if (elementType === 'input' && type === 'file') {
-                    item_config.files = event.target.files;
-                } else {
-                    item_config.value = event.target.value;
-                }
+
                 if (onInputCallback) onInputCallback(event);
             }
         },
         styles: item_config.styles || {}
     });
+
     return element;
 }
 
