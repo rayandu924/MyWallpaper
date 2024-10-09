@@ -1,0 +1,34 @@
+{
+    "items": [
+        {
+            "name": "day",
+            "enabled": true,
+            "position": 1,
+            "path": "C:/Users/rayandu924/Documents/GitHub/MyWallpaper/items/day/index.html"
+        },
+        {
+            "name": "image",
+            "enabled": true,
+            "position": 0,
+            "path": "C:/Users/rayandu924/Documents/GitHub/MyWallpaper/items/image/index.html"
+        },
+        {
+            "name": "rain",
+            "enabled": true,
+            "position": 2,
+            "path": "C:/Users/rayandu924/Documents/GitHub/MyWallpaper/items/rain/index.html"
+        },
+        {
+            "name": "time",
+            "enabled": true,
+            "position": 3,
+            "path": "C:/Users/rayandu924/Documents/GitHub/MyWallpaper/items/time/index.html"
+        },
+        {
+            "name": "test",
+            "enabled": true,
+            "position": 4,
+            "path": "C:/Users/rayandu924/Documents/GitHub/MyWallpaper/items/test/index.html"
+        }
+    ]
+}

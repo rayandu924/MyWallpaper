@@ -1,3 +1,1 @@
-# MyWallpaper
-
-This project allows you to customize your desktop wallpaper using a webpage with customisable addons.
+python3 -m src.wallpaper_manager

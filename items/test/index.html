@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MyWallpaper Addon - Jour de la Semaine</title>
+<!-- Configuration JSON -->
+<script id="config" type="application/json">{
+    "positionX": {
+        "type": "range",
+        "min": 0,
+        "max": 100,
+        "value": "42",
+        "step": 1
+    }
+}</script>
+<!-- Static Styles -->
+<style>
+        body {
+            overflow: hidden;
+            margin: 0;
+        }
+
+        #day {
+            position: absolute;
+            transform: translate(-50%, -50%);
+        }
+    </style>
+</head>
+<body>
+<div id="day"></div>
+<script>
+</script>
+</body>
+</html>

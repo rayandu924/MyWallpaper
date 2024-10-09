@@ -7,60 +7,52 @@
 
     <!-- Configuration JSON -->
     <script id="config" type="application/json">{
-    "positionX": {
-        "value": 52,
-        "varType": "number",
-        "inputType": "slider",
-        "min": 0,
-        "max": 100
-    },
-    "positionY": {
-        "value": 20,
-        "varType": "number",
-        "inputType": "slider",
-        "min": 0,
-        "max": 100
-    },
-    "fontURL": {
-        "value": "https://fonts.cdnfonts.com/css/anurati",
-        "varType": "string",
-        "inputType": "text"
-    },
-    "fontFamily": {
-        "value": "'Anurati', sans-serif",
-        "varType": "string",
-        "inputType": "text"
-    },
-    "fontWeight": {
-        "value": 500,
-        "varType": "number",
-        "inputType": "slider",
-        "min": 100,
-        "max": 900,
-        "step": 100
-    },
-    "fontSize": {
-        "value": 127,
-        "varType": "number",
-        "inputType": "slider",
-        "min": 10,
-        "max": 200,
-        "step": 1
-    },
-    "letterSpacing": {
-        "value": 50,
-        "varType": "number",
-        "inputType": "slider",
-        "min": 0,
-        "max": 50,
-        "step": 1
-    },
-    "textColor": {
-        "value": "#d5a0dd",
-        "varType": "string",
-        "inputType": "color"
-    }
-}</script>
+        "positionX": {
+            "type": "range",
+            "value": 52,
+            "min": 0,
+            "max": 100
+        },
+        "positionY": {
+            "type": "range",
+            "value": 20,
+            "min": 0,
+            "max": 100
+        },
+        "fontURL": {
+            "type": "text",
+            "value": "https://fonts.cdnfonts.com/css/anurati"
+        },
+        "fontFamily": {
+            "type": "text",
+            "value": "'Anurati', sans-serif"
+        },
+        "fontWeight": {
+            "type": "range",
+            "value": 500,
+            "min": 100,
+            "max": 900,
+            "step": 100
+        },
+        "fontSize": {
+            "type": "range",
+            "value": 127,
+            "min": 10,
+            "max": 200,
+            "step": 1
+        },
+        "letterSpacing": {
+            "type": "range",
+            "value": 50,
+            "min": 0,
+            "max": 50,
+            "step": 1
+        },
+        "textColor": {
+            "type": "color",
+            "value": "#d5a0dd"
+        }        
+    }</script>
 
     <!-- Static Styles -->
     <style>

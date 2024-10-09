@@ -2,6 +2,7 @@ import logging
 from PyQt5.QtCore import QUrl
 
 class ItemManager:
+
     @staticmethod
     def update_items(view, items):
         logging.info("Updating items")

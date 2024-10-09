@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MyWallpaper Addon - Horloge</title>
+<!-- Configuration JSON -->
+<script id="config" type="application/json">{
+    "positionX": {
+        "type": "range",
+        "value": 0,
+        "min": 0,
+        "max": 100
+    },
+    "positionY": {
+        "type": "range",
+        "value": 85,
+        "min": 0,
+        "max": 100
+    },
+    "fontURL": {
+        "type": "text",
+        "value": "https://fonts.googleapis.com/css2?family=Bungee+Spice&family=Edu+AU+VIC+WA+NT+Dots:wght@400..700&display=swap"
+    },
+    "fontFamily": {
+        "type": "text",
+        "value": "\"Bungee Spice\", sans-serif"
+    },
+    "fontWeight": {
+        "type": "range",
+        "value": 100,
+        "min": 100,
+        "max": 900,
+        "step": 100
+    },
+    "fontSize": {
+        "type": "range",
+        "value": 200,
+        "min": 10,
+        "max": 200,
+        "step": 1
+    },
+    "showSeconds": {
+        "type": "checkbox",
+        "value": false
+    },
+    "timeFormat24h": {
+        "type": "checkbox",
+        "value": "true",
+        "checked": false
+    },
+    "textColor": {
+        "type": "color",
+        "value": "#d5a0dd"
+    }
+}</script>
+<!-- Static Styles -->
+<style>
+        body {
+            overflow: hidden;
+        }
+
+        #clock {
+            position: absolute;
+        }
+    </style>
+</head>
+<body>
+<div id="clock"></div>
+<script>
+        // Récupération de la configuration
+        const config = JSON.parse(document.getElementById('config').textContent);
+
+        // Fonction pour charger la police via l'URL fournie
+        function loadFont(url, fontFamily) {
+            const link = document.createElement('link');
+            link.href = url;
+            link.rel = 'stylesheet';
+            document.head.appendChild(link);
+
+            // Appliquer la famille de polices à l'élément de l'horloge après le chargement du lien
+            link.onload = () => {
+                document.getElementById('clock').style.fontFamily = fontFamily;
+            };
+        }
+
+        // Fonction pour mettre à jour l'affichage de l'heure
+        function updateClock() {
+            const clockElement = document.getElementById('clock');
+            const now = new Date();
+
+            let hours = now.getHours();
+            const minutes = now.getMinutes();
+            const seconds = now.getSeconds();
+
+            // Gestion du format 12h ou 24h
+            if (!config.timeFormat24h.value) {
+                hours = hours % 12 || 12; // Convertir au format 12h
+            }
+
+            // Formater les heures et les minutes avec des zéros si nécessaire
+            const hoursText = String(hours).padStart(2, '0');
+            const minutesText = String(minutes).padStart(2, '0');
+            const secondsText = String(seconds).padStart(2, '0');
+
+            // Affichage selon les secondes
+            const timeString = config.showSeconds.value ?
+                `${hoursText}:${minutesText}:${secondsText}` :
+                `${hoursText}:${minutesText}`;
+
+            clockElement.textContent = timeString;
+
+            // Mettre à jour chaque seconde
+            setTimeout(updateClock, 1000);
+        }
+
+        // Fonction pour appliquer la configuration
+        function applyConfig() {
+            const clockElement = document.getElementById('clock');
+
+            // Charger la police depuis l'URL et l'appliquer à l'horloge
+            loadFont(config.fontURL.value, config.fontFamily.value);
+
+            // Appliquer les autres styles
+            clockElement.style.color = config.textColor.value;
+            clockElement.style.fontSize = `${config.fontSize.value}px`;
+            clockElement.style.fontWeight = config.fontWeight.value;
+            clockElement.style.left = `${config.positionX.value}%`;
+            clockElement.style.top = `${config.positionY.value}%`;
+        }
+
+        // Initialisation de l'horloge
+        applyConfig();
+        updateClock();
+
+    </script>
+</body>
+</html>

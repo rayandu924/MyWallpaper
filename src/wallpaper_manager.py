@@ -3,10 +3,23 @@ import os
 import logging
 from pathlib import Path
 from PyQt5.QtWidgets import QApplication, QMainWindow
-from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage, QWebEngineSettings
+from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage
 from PyQt5.QtCore import QUrl
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
+import threading
 from src.json_manager import JsonManager
 from src.item_manager import ItemManager
+from src.app_manager import AppManager
+
+class FileChangeHandler(FileSystemEventHandler):
+    def __init__(self, manager):
+        self.manager = manager
+
+    def on_modified(self, event):
+        logging.info(f"File modified: {event.src_path}")
+        # Recharger la page quand un fichier est modifié
+        self.manager.reload_page()
 
 class WallpaperManager(QMainWindow):
     user32 = ctypes.windll.user32
@@ -18,13 +31,14 @@ class WallpaperManager(QMainWindow):
         self.set_as_wallpaper(int(self.winId()))
         self.open_devtools()
 
+        # Surveiller le dossier 'items' pour des changements
+        self.start_file_observer()
+
     def setup_ui(self):
         self.web_view = QWebEngineView(self)
         self.web_view.load(QUrl.fromLocalFile(self.wallpaper.as_posix()))
-        
         self.showFullScreen()
         self.setCentralWidget(self.web_view)
-        
         self.web_view.loadFinished.connect(self.on_page_load_finished)
 
     def open_devtools(self):
@@ -39,74 +53,54 @@ class WallpaperManager(QMainWindow):
 
     def on_page_load_finished(self):
         logging.info("Main page load finished. Setting up item handlers.")
-        
-        addons_dir = Path('addons/').resolve()
+        addons_dir = Path('items/').resolve()
         config_file = os.path.join(addons_dir, 'config.json')
-        
         config = JsonManager.load_json(config_file)
         ItemManager.update_items(self.web_view, config.get("items"))
-        
 
+    def reload_page(self):
+        addons_dir = Path('items/').resolve()
+        config_file = os.path.join(addons_dir, 'config.json')
+        config = JsonManager.load_json(config_file)
+        ItemManager.update_items(self.web_view, config.get("items"))
+        ItemManager.update_items(self.web_view, config.get("items"))
+
+    def start_file_observer(self):
+        logging.info("Starting file observer for the 'items' directory.")
+        event_handler = FileChangeHandler(self)
+        observer = Observer()
+        items_dir = Path('items/').resolve()
+
+        observer.schedule(event_handler, str(items_dir), recursive=True)
+        observer_thread = threading.Thread(target=observer.start)
+        observer_thread.start()
+
+        # Assurer que l'observateur s'arrête avec l'application
+        self.observer = observer
+        self.observer_thread = observer_thread
+
+    def closeEvent(self, event):
+        # Arrêter l'observateur lorsque la fenêtre se ferme
+        logging.info("Stopping file observer.")
+        self.observer.stop()
+        self.observer.join()
+        
     @staticmethod
     def set_as_wallpaper(window_id):
         logging.info(f"Setting window {window_id} as wallpaper.")
-        try:
-            progman = WallpaperManager.find_progman()
-            WallpaperManager.send_message_to_progman(progman)
-            WallpaperManager.set_window_as_child(window_id, progman)
-        except (RuntimeError, ValueError) as e:
-            logging.error(f"Error setting wallpaper: {e}")
-            raise
+        progman = WallpaperManager.user32.FindWindowW("Progman", None)
+        WallpaperManager.user32.SendMessageTimeoutW(progman, 0x052C, 0, 0, 0x0, 1000, None)
+        WallpaperManager.user32.SetParent(window_id, progman)
 
-    @staticmethod
-    def find_progman():
-        logging.info("Attempting to find Progman window...")
-        try:
-            progman = WallpaperManager.user32.FindWindowW("Progman", None)
-            if not progman:
-                raise RuntimeError("Progman window not found.")
-            logging.info(f"Progman window found: {progman}")
-        except RuntimeError as e:
-            logging.error(f"Error finding Progman: {e}")
-            raise
-        return progman
-
-    @staticmethod
-    def send_message_to_progman(progman):
-        logging.info("Sending message to Progman to prepare wallpaper...")
-        if not progman:
-            raise ValueError("Invalid Progman window handle.")
-        try:
-            result = WallpaperManager.user32.SendMessageTimeoutW(progman, 0x052C, 0, 0, 0x0, 1000, None)
-            if result == 0:
-                raise RuntimeError("Failed to send message to Progman.")
-            logging.info("Message sent to Progman successfully.")
-        except (ValueError, RuntimeError) as e:
-            logging.error(f"Error sending message to Progman: {e}")
-            raise
-        return True
-
-    @staticmethod
-    def set_window_as_child(window_id, progman):
-        logging.info(f"Setting window {window_id} as child of Progman...")
-        if not window_id:
-            raise ValueError("Invalid window handle.")
-        if not progman:
-            raise ValueError("Progman window handle is not set.")
-        try:
-            set_parent_result = WallpaperManager.user32.SetParent(window_id, progman)
-            if set_parent_result == 0:
-                raise RuntimeError("Failed to set window as child of Progman.")
-            logging.info("Window set as child of Progman successfully.")
-        except (ValueError, RuntimeError) as e:
-            logging.error(f"Error setting window as child of Progman: {e}")
-            raise
-        return True
-
-if __name__ == "__main__":
+def start_wallpaper_app():
     logging.basicConfig(level=logging.INFO)
     logging.info("Starting application.")
     app = QApplication([])
     wallpaper_app = WallpaperManager()
     wallpaper_app.show()
     app.exec_()
+
+if __name__ == "__main__":
+    wallpaper_thread = threading.Thread(target=start_wallpaper_app)
+    wallpaper_thread.start()
+    AppManager.create_app()
