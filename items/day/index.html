@@ -1,61 +1,60 @@
 <!DOCTYPE html>
+
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MyWallpaper Addon - Jour de la Semaine</title>
-
-    <!-- Configuration JSON -->
-    <script id="config" type="application/json">{
-        "positionX": {
-            "type": "range",
-            "value": 52,
-            "min": 0,
-            "max": 100
-        },
-        "positionY": {
-            "type": "range",
-            "value": 20,
-            "min": 0,
-            "max": 100
-        },
-        "fontURL": {
-            "type": "text",
-            "value": "https://fonts.cdnfonts.com/css/anurati"
-        },
-        "fontFamily": {
-            "type": "text",
-            "value": "'Anurati', sans-serif"
-        },
-        "fontWeight": {
-            "type": "range",
-            "value": 500,
-            "min": 100,
-            "max": 900,
-            "step": 100
-        },
-        "fontSize": {
-            "type": "range",
-            "value": 127,
-            "min": 10,
-            "max": 200,
-            "step": 1
-        },
-        "letterSpacing": {
-            "type": "range",
-            "value": 50,
-            "min": 0,
-            "max": 50,
-            "step": 1
-        },
-        "textColor": {
-            "type": "color",
-            "value": "#d5a0dd"
-        }        
-    }</script>
-
-    <!-- Static Styles -->
-    <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MyWallpaper Addon - Jour de la Semaine</title>
+<!-- Configuration JSON -->
+<script id="config" type="application/json">{
+    "positionX": {
+        "type": "range",
+        "value": 52,
+        "min": 0,
+        "max": 100
+    },
+    "positionY": {
+        "type": "range",
+        "value": 20,
+        "min": 0,
+        "max": 100
+    },
+    "fontURL": {
+        "type": "text",
+        "value": "https://fonts.cdnfonts.com/css/anurati"
+    },
+    "fontFamily": {
+        "type": "text",
+        "value": "'Anurati', sans-serif"
+    },
+    "fontWeight": {
+        "type": "range",
+        "value": "100",
+        "min": 100,
+        "max": 900,
+        "step": 100
+    },
+    "fontSize": {
+        "type": "range",
+        "value": 127,
+        "min": 10,
+        "max": 200,
+        "step": 1
+    },
+    "letterSpacing": {
+        "type": "range",
+        "value": 50,
+        "min": 0,
+        "max": 50,
+        "step": 1
+    },
+    "textColor": {
+        "type": "color",
+        "value": "#d5a0dd"
+    }
+}</script>
+<!-- Static Styles -->
+<style>
         body {
             overflow: hidden;
             margin: 0;
@@ -68,9 +67,7 @@
     </style>
 </head>
 <body>
-
 <div id="day"></div>
-
 <script>
     // Récupération de la configuration
     const config = JSON.parse(document.getElementById('config').textContent);
