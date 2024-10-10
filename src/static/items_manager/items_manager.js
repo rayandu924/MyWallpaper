@@ -1,3 +1,4 @@
+import { call_api } from './api_manager.js';
 import { create_element } from './elements_manager.js'; // On utilise create_element
 import { create_input } from './inputs_manager.js'; // On utilise create_input
 
@@ -13,15 +14,24 @@ function create_item(item) {
         events: {
             click: async () => {
                 console.log('item sélectionné:', item.name);
-                
-                // Charger depuis l'API la configuration de l'item
-                let item_config = await window.pywebview.api.get_item_config(item.name);
 
+                // Appel API pour obtenir la configuration spécifique de l'item
+                let item_config = await call_api(`http://localhost:5000/get_item_config/${item.name}`);
+
+                // Gestion des erreurs possibles
+                if (item_config.success === false) {
+                    console.error('Erreur lors du chargement de la configuration:', item_config.message);
+                    return;
+                }
+
+                // Met à jour la liste des configurations
                 const config_list = document.getElementById('item-config');
                 config_list.innerHTML = ''; // Efface la configuration précédente
 
+                // Crée des inputs basés sur la configuration de l'item
                 let inputs = create_item_config(item.name, item_config);
 
+                // Ajoute chaque input à la liste des configurations
                 inputs.forEach(input => config_list.appendChild(input));
             }
         },
@@ -47,7 +57,19 @@ function create_item_config(item_name, config) {
 
         // Créer l'input correspondant à la valeur de la clé
         const input = create_input(config[key], async (event) => {
-            await window.pywebview.api.save_item_config(item_name, config);            
+            // Met à jour la configuration avec la nouvelle valeur
+            config[key].value = event.target.value;
+
+            // Appel API pour sauvegarder la nouvelle configuration
+            let response = await call_api(`http://localhost:5000/save_item_config/${item_name}`, 'POST', config);
+
+            // Gestion des erreurs lors de la sauvegarde
+            if (response.success === false) {
+                console.error('Erreur lors de la sauvegarde de la configuration:', response.message);
+                return;
+            }
+
+            console.log('Configuration sauvegardée avec succès pour l\'item:', item_name);
         });
 
         // Créer un conteneur pour regrouper le label et l'input

@@ -1,6 +1,5 @@
 import logging
 from bs4 import BeautifulSoup
-from src.file_manager import FileManager
 
 class HtmlManager:
     @staticmethod
@@ -9,15 +8,14 @@ class HtmlManager:
             # Parse le contenu HTML
             soup = BeautifulSoup(html_content, 'html.parser')
             element = soup.find(id=element_id)
-            
+
             if element:
                 return element
             else:
-                logging.error(f"Error: Element with id='{element_id}' not found in HTML content.")
-                return None
+                # Lever une exception si l'élément n'est pas trouvé
+                raise ValueError(f"Element with id='{element_id}' not found in HTML content.")
         except Exception as e:
-            logging.error(f"Error parsing HTML: {e}")
-            return None
+            raise ValueError(f"Error getting element with id='{element_id}': {e}")
 
     @staticmethod
     def update_element_by_id(html_content, element_id, new_content):
@@ -32,8 +30,7 @@ class HtmlManager:
                 logging.info(f"Element with id='{element_id}' updated successfully.")
                 return str(soup)  # Retourne le HTML modifié sous forme de chaîne
             else:
-                logging.error(f"Error: Element with id='{element_id}' not found.")
-                return None
+                # Lever une exception si l'élément n'est pas trouvé
+                raise ValueError(f"Element with id='{element_id}' not found.")
         except Exception as e:
-            logging.error(f"Error updating element in HTML: {e}")
-            return None
+            raise ValueError(f"Error updating element with id='{element_id}': {e}")

@@ -7,53 +7,53 @@
 <title>MyWallpaper Addon - Horloge</title>
 <!-- Configuration JSON -->
 <script id="config" type="application/json">{
-    "positionX": {
-        "type": "range",
-        "value": 0,
-        "min": 0,
-        "max": 100
+    "fontFamily": {
+        "type": "text",
+        "value": "\"Bungee Spice\", sans-serif"
     },
-    "positionY": {
+    "fontSize": {
+        "max": 200,
+        "min": 10,
+        "step": 1,
         "type": "range",
-        "value": 85,
-        "min": 0,
-        "max": 100
+        "value": "200"
     },
     "fontURL": {
         "type": "text",
         "value": "https://fonts.googleapis.com/css2?family=Bungee+Spice&family=Edu+AU+VIC+WA+NT+Dots:wght@400..700&display=swap"
     },
-    "fontFamily": {
-        "type": "text",
-        "value": "\"Bungee Spice\", sans-serif"
-    },
     "fontWeight": {
-        "type": "range",
-        "value": "100",
-        "min": 100,
         "max": 900,
-        "step": 100
-    },
-    "fontSize": {
+        "min": 100,
+        "step": 100,
         "type": "range",
-        "value": "200",
-        "min": 10,
-        "max": 200,
-        "step": 1
+        "value": "100"
+    },
+    "positionX": {
+        "max": 100,
+        "min": 0,
+        "type": "range",
+        "value": 0
+    },
+    "positionY": {
+        "max": 100,
+        "min": 0,
+        "type": "range",
+        "value": 85
     },
     "showSeconds": {
+        "checked": false,
         "type": "checkbox",
-        "value": false,
-        "checked": false
-    },
-    "timeFormat24h": {
-        "type": "checkbox",
-        "value": true,
-        "checked": false
+        "value": "false"
     },
     "textColor": {
         "type": "color",
-        "value": "#99dade"
+        "value": "#fbace6"
+    },
+    "timeFormat24h": {
+        "checked": false,
+        "type": "checkbox",
+        "value": "true"
     }
 }</script>
 <!-- Static Styles -->
